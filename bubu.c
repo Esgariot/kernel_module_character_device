@@ -30,6 +30,7 @@ MODULE_VERSION("0.1");
 static struct class* bubuClass = NULL;
 static struct device* bubuDevice = NULL;
 static int deviceMajorNumber;
+static short size_of_message;
 static char messageBuffer[MESSAGE_BUFFER_LENGTH];
 
 
@@ -161,32 +162,70 @@ static int device_release(struct inode *inode_ptr, struct file *file_ptr){
     return 0;
 }
 
-static ssize_t device_read(struct file *file_ptr, char *buffer, size_t length, loff_t *offset) {
-    int errorCount = 0;
-    errorCount = copy_to_user(buffer, messageBuffer, length);
-    if(errorCount == 0) {
-        printk(KERN_INFO "[device_read] copied %pE buffer back to user",messageBuffer);
-        return (length=0);
-    }
-    else {
-        printk(KERN_NOTICE "[device_read] Failed to send %d characters to user\n",errorCount);
-        return -EFAULT;
-    }
-}
+// static ssize_t device_read(struct file *file_ptr, char *buffer, size_t length, loff_t *offset) {
+//     int errorCount = 0;
+//     errorCount = copy_to_user(buffer, messageBuffer, length);
+//     if(errorCount == 0) {
+//         printk(KERN_INFO "[device_read] copied %pE buffer back to user",messageBuffer);
+//         return (length=0);
+//     }
+//     else {
+//         printk(KERN_NOTICE "[device_read] Failed to send %d characters to user\n",errorCount);
+//         return -EFAULT;
+//     }
+// }
 
-static ssize_t device_write(struct file *file_ptr, const char *buffer, size_t length, loff_t *offset){
-    long pid;
-    int returnValue;
+// static ssize_t device_write(struct file *file_ptr, const char *buffer, size_t length, loff_t *offset){
+//     long pid;
+//     int returnValue;
     
-    clear_message_buffer();
-    returnValue = kstrtol(buffer, 0, &pid);
-    if(returnValue == 0)
-        sprintf(messageBuffer, "%s %lu %lu", buffer, pid, pid_to_cr3(pid));
-    else {
-        printk(KERN_NOTICE "[device_write] Failed to parse input\n");
-        return returnValue;
-    }
-    return 0;
+//     clear_message_buffer();
+//     returnValue = kstrtol(buffer, 0, &pid);
+//     if(returnValue == 0)
+//         sprintf(messageBuffer, "%s %lu %lu", buffer, pid, pid_to_cr3(pid));
+//     else {
+//         printk(KERN_NOTICE "[device_write] Failed to parse input\n");
+//         return returnValue;
+//     }
+//     return 0;
+// }
+
+/** @brief This function is called whenever device is being read from user space i.e. data is
+ *  being sent from the device to the user. In this case is uses the copy_to_user() function to
+ *  send the buffer string to the user and captures any errors.
+ *  @param filep A pointer to a file object (defined in linux/fs.h)
+ *  @param buffer The pointer to the buffer to which this function writes the data
+ *  @param len The length of the b
+ *  @param offset The offset if required
+ */
+static ssize_t dev_read(struct file *filep, char *buffer, size_t len, loff_t *offset){
+   int error_count = 0;
+   // copy_to_user has the format ( * to, *from, size) and returns 0 on success
+   error_count = copy_to_user(buffer, messageBuffer, size_of_message);
+ 
+   if (error_count==0){            // if true then have success
+      printk(KERN_INFO "EBBChar: Sent %d characters to the user\n", size_of_message);
+      return (size_of_message=0);  // clear the position to the start and return 0
+   }
+   else {
+      printk(KERN_INFO "EBBChar: Failed to send %d characters to the user\n", error_count);
+      return -EFAULT;              // Failed -- return a bad address message (i.e. -14)
+   }
+}
+ 
+/** @brief This function is called whenever the device is being written to from user space i.e.
+ *  data is sent to the device from the user. The data is copied to the message[] array in this
+ *  LKM using the sprintf() function along with the length of the string.
+ *  @param filep A pointer to a file object
+ *  @param buffer The buffer to that contains the string to write to the device
+ *  @param len The length of the array of data that is being passed in the const char buffer
+ *  @param offset The offset if required
+ */
+static ssize_t dev_write(struct file *filep, const char *buffer, size_t len, loff_t *offset){
+   sprintf(message, "%s(%zu letters)", buffer, len);   // appending received string with its length
+   size_of_message = strlen(message);                 // store the length of the stored message
+   printk(KERN_INFO "EBBChar: Received %zu characters from the user\n", len);
+   return len;
 }
 
 static unsigned long pid_to_cr3(int pid)

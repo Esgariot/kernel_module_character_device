@@ -6,6 +6,9 @@ all:
 	make -C /lib/modules/$(shell uname -r)/build/ M=$(PWD) modules
 	$(CC) bubu_reader.c -o bubu_reader
 
+debug:
+	$(CC) bubu_debug.c -o bubu_debug
+
 install:
 	sudo insmod bubu.ko
 
