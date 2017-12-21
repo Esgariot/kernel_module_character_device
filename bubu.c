@@ -179,17 +179,18 @@ static ssize_t device_write(struct file *file_ptr, const char *buffer, size_t le
     long pid;
     int returnValue;
     
-    clear_message_buffer();
+    //clear_message_buffer();
     returnValue = kstrtol(buffer, 0, &pid);
     if(returnValue == 0){
-        sprintf(messageBuffer, "%s %lu %lu", buffer, pid, pid_to_cr3(pid));
+        printk(KERN_INFO "[device_write] received %zu characters. Parsed as %lu", length, pid);
+        sprintf(messageBuffer, "%s", buffer);
         size_of_message = strlen(messageBuffer);
     }
     else {
         printk(KERN_NOTICE "[device_write] Failed to parse input\n");
         return returnValue;
     }
-    return 0;
+    return length;
 }
 
 
