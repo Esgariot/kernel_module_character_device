@@ -198,7 +198,7 @@ static int device_release(struct inode *inode_ptr, struct file *file_ptr){
  *  @param len The length of the b
  *  @param offset The offset if required
  */
-static ssize_t dev_read(struct file *filep, char *buffer, size_t len, loff_t *offset){
+static ssize_t device_read(struct file *filep, char *buffer, size_t len, loff_t *offset){
    int error_count = 0;
    // copy_to_user has the format ( * to, *from, size) and returns 0 on success
    error_count = copy_to_user(buffer, messageBuffer, size_of_message);
@@ -221,9 +221,9 @@ static ssize_t dev_read(struct file *filep, char *buffer, size_t len, loff_t *of
  *  @param len The length of the array of data that is being passed in the const char buffer
  *  @param offset The offset if required
  */
-static ssize_t dev_write(struct file *filep, const char *buffer, size_t len, loff_t *offset){
-   sprintf(message, "%s(%zu letters)", buffer, len);   // appending received string with its length
-   size_of_message = strlen(message);                 // store the length of the stored message
+static ssize_t device_write(struct file *filep, const char *buffer, size_t len, loff_t *offset){
+   sprintf(messageBuffer, "%s(%zu letters)", buffer, len);   // appending received string with its length
+   size_of_message = strlen(messageBuffer);                 // store the length of the stored message
    printk(KERN_INFO "EBBChar: Received %zu characters from the user\n", len);
    return len;
 }
