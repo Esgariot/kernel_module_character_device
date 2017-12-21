@@ -46,6 +46,7 @@ static void clear_message_buffer(void);
 static unsigned long pid_to_cr3(int);
 
 static struct file_operations file_ops = {
+    .owner = THIS_MODULE,
     .read = device_read,
     .write = device_write,
     .open = device_open,
@@ -162,10 +163,10 @@ static int device_release(struct inode *inode_ptr, struct file *file_ptr){
 
 static ssize_t device_read(struct file *file_ptr, char *buffer, size_t length, loff_t *offset) {
     int errorCount = 0;
-    errorCount = copy_to_user(buffer,messageBuffer,length);
-    if(errorCount==0) {
+    errorCount = copy_to_user(buffer, messageBuffer, length);
+    if(errorCount == 0) {
         printk(KERN_INFO "[device_read] copied %pE buffer back to user",messageBuffer);
-        return 0;
+        return (length=0);
     }
     else {
         printk(KERN_NOTICE "[device_read] Failed to send %d characters to user\n",errorCount);
@@ -179,8 +180,8 @@ static ssize_t device_write(struct file *file_ptr, const char *buffer, size_t le
     
     clear_message_buffer();
     returnValue = kstrtol(buffer, 0, &pid);
-    if(returnValue ==0)
-        sprintf(messageBuffer,"%lu",pid_to_cr3(pid));
+    if(returnValue == 0)
+        sprintf(messageBuffer, "%s %lu %lu", buffer, pid, pid_to_cr3(pid));
     else {
         printk(KERN_NOTICE "[device_write] Failed to parse input\n");
         return returnValue;

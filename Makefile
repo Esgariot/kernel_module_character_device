@@ -14,8 +14,9 @@ remove:
 
 test:
 	sudo dmesg -C
-	install
-	remove
+	$(MAKE) install
+	$(MAKE) remove
+	dmesg
 
 clean:
 	make -C /lib/modules/$(shell uname -r)/build/ M=$(PWD) clean
