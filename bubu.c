@@ -135,17 +135,21 @@ static int __init bubu_init(void)
 static void __exit bubu_exit(void)
 {
     printk(KERN_INFO "[exit] bubu_exit\n");
+    printk(KERN_INFO "[exit] destroying device\n");
     device_destroy(bubuClass, MKDEV(deviceMajorNumber, 0));
+    printk(KERN_INFO "[exit] unregistering class\n");
     class_unregister(bubuClass);
+    printk(KERN_INFO "[exit] destroying class\n");
     class_destroy(bubuClass);
+    printk(KERN_INFO "[exit] unregistering character device\n");
     unregister_chrdev(deviceMajorNumber, DEVICE_NAME);
+    printk(KERN_INFO "[exit] unregistered class and device\n");
     mutex_destroy(&bubu_mutex);
-    printk(KERN_INFO "[exit unregistered class and device]\n");
 }
 
 static int device_open(struct inode *inode_ptr, struct file *file_ptr){
     if(!mutex_trylock(&bubu_mutex)){
-        printk(KERN_ALERT "bubu_char is busy");
+        printk(KERN_ALERT "[device_open] "DEVICE_NAME" is busy");
         return -EBUSY;
     }
     return 0;
@@ -160,6 +164,7 @@ static ssize_t device_read(struct file *file_ptr, char *buffer, size_t length, l
     int errorCount = 0;
     errorCount = copy_to_user(buffer,messageBuffer,length);
     if(errorCount==0) {
+        printk(KERN_INFO "[device_read] copied %pE buffer back to user",messageBuffer);
         return 0;
     }
     else {
