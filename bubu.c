@@ -166,7 +166,7 @@ static ssize_t device_read(struct file *file_ptr, char *buffer, size_t length, l
     int errorCount = 0;
     errorCount = copy_to_user(buffer, messageBuffer, size_of_message);
     if(errorCount == 0) {
-        printk(KERN_INFO "[device_read] sent \" %*pE \" buffer with %d characters\n", messageBuffer, size_of_message);
+        printk(KERN_INFO "[device_read] sent \" %pE \" buffer with %d characters\n", messageBuffer, size_of_message);
         return (size_of_message=0);
     }
     else {
