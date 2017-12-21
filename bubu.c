@@ -201,12 +201,12 @@ static ssize_t device_write(struct file *file_ptr, const char *buffer, size_t le
  *  @param len The length of the array of data that is being passed in the const char buffer
  *  @param offset The offset if required
  */
-static ssize_t device_write(struct file *filep, const char *buffer, size_t len, loff_t *offset){
-   sprintf(messageBuffer, "%s(%zu letters)", buffer, len);   // appending received string with its length
-   size_of_message = strlen(messageBuffer);                 // store the length of the stored message
-   printk(KERN_INFO "EBBChar: Received %zu characters from the user\n", len);
-   return len;
-}
+// static ssize_t device_write(struct file *filep, const char *buffer, size_t len, loff_t *offset){
+//    sprintf(messageBuffer, "%s(%zu letters)", buffer, len);   // appending received string with its length
+//    size_of_message = strlen(messageBuffer);                 // store the length of the stored message
+//    printk(KERN_INFO "EBBChar: Received %zu characters from the user\n", len);
+//    return len;
+// }
 
 static unsigned long pid_to_cr3(int pid)
 {
