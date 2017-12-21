@@ -14,7 +14,7 @@ int main (int argc, char *argv[]) {
 	if(argc>=1) {
 		processToLookup = atoi(argv[1]);
 		printf("Name - %s\n", argv[0]);
-		printf("Provided input - %s\n", argv[1]);
+		printf("Provided input - %s %d\n", argv[1], processToLookup);
 	}
 	
 	
