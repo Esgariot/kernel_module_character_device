@@ -29,7 +29,7 @@ MODULE_VERSION("0.1");
 
 static struct class* bubuClass = NULL;
 static struct device* bubuDevice = NULL;
-
+static int deviceMajorNumber;
 static char messageBuffer[MESSAGE_BUFFER_LENGTH];
 
 
@@ -54,26 +54,25 @@ static struct file_operations file_ops = {
 
 static int __init bubu_init(void)
 {   
-    int  majorNumber;
     mutex_init(&bubu_mutex);
     printk(KERN_INFO "[init] bubu_init\n");
     clear_message_buffer();    
- 
 
-    majorNumber= register_chrdev(0, DEVICE_NAME, &file_ops);
 
-    if(majorNumber < 0) {
+    deviceMajorNumber= register_chrdev(0, DEVICE_NAME, &file_ops);
+
+    if(deviceMajorNumber < 0) {
         printk(KERN_WARNING "[init] alloc_chrdev_region failed\n");
-        return majorNumber;
+        return deviceMajorNumber;
     }
     else {
-        printk(KERN_INFO "[init] Registered device with major number %d\n",majorNumber);
+        printk(KERN_INFO "[init] Registered device with major number %d\n",deviceMajorNumber);
     }
 
     bubuClass = class_create(THIS_MODULE, CLASS_NAME);
 
     if (IS_ERR(bubuClass)) {
-        unregister_chrdev(majorNumber,DEVICE_NAME);
+        unregister_chrdev(deviceMajorNumber,DEVICE_NAME);
         printk(KERN_ALERT "[init] Failed to register device class\n");
         return PTR_ERR(bubuClass);
     }
@@ -81,10 +80,10 @@ static int __init bubu_init(void)
         printk(KERN_INFO "[init] Correctly registered device class\n");
     }
 
-    bubuDevice = device_create(bubuClass, NULL, MKDEV(majorNumber,0), NULL, DEVICE_NAME);
+    bubuDevice = device_create(bubuClass, NULL, MKDEV(deviceMajorNumber,0), NULL, DEVICE_NAME);
     if(IS_ERR(bubuDevice)) {
         class_destroy(bubuClass);
-        unregister_chrdev(majorNumber,DEVICE_NAME);
+        unregister_chrdev(deviceMajorNumber,DEVICE_NAME);
         printk(KERN_ALERT "[init] Failed to create device\n");
         return PTR_ERR(bubuDevice);
     }
@@ -136,7 +135,12 @@ static int __init bubu_init(void)
 static void __exit bubu_exit(void)
 {
     printk(KERN_INFO "[exit] bubu_exit\n");
+    device_destroy(bubuClass, MKDEV(deviceMajorNumber, 0));
+    class_unregister(bubuClass);
+    class_destroy(bubuClass);
+    unregister_chrdev(deviceMajorNumber, DEVICE_NAME);
     mutex_destroy(&bubu_mutex);
+    printk(KERN_INFO "[exit unregistered class and device]\n");
 }
 
 static int device_open(struct inode *inode_ptr, struct file *file_ptr){
@@ -154,7 +158,7 @@ static int device_release(struct inode *inode_ptr, struct file *file_ptr){
 
 static ssize_t device_read(struct file *file_ptr, char *buffer, size_t length, loff_t *offset) {
     int errorCount = 0;
-    errorCount = copy_to_user(buffer,"kek",4);
+    errorCount = copy_to_user(buffer,messageBuffer,length);
     if(errorCount==0) {
         return 0;
     }
