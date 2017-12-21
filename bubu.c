@@ -181,9 +181,8 @@ static ssize_t device_write(struct file *file_ptr, const char *buffer, size_t le
     
     clear_message_buffer();
     returnValue = kstrtol(buffer, 0, &pid);
-    printk(KERN_INFO "[device_write] received %zu characters. Parsed as %lu", length, pid);
+    printk(KERN_INFO "[device_write] received %zu characters. Parsed as %lu. kstrtoul returned %d\n", length, pid, returnValue);
     if(returnValue == 0){
-
         sprintf(messageBuffer, "%s", buffer);
         size_of_message = strlen(messageBuffer);
     }
