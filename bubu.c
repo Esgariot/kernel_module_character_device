@@ -166,7 +166,7 @@ static ssize_t device_read(struct file *file_ptr, char *buffer, size_t length, l
     int errorCount = 0;
     errorCount = copy_to_user(buffer, messageBuffer, size_of_message);
     if(errorCount == 0) {
-        printk(KERN_INFO "[device_read] sent \" %pE \" buffer with %d characters\n", messageBuffer, size_of_message);
+        printk(KERN_INFO "[device_read] sent \" %*pE \" buffer with %d characters\n", messageBuffer, size_of_message);
         return (size_of_message=0);
     }
     else {
@@ -182,7 +182,7 @@ static ssize_t device_write(struct file *file_ptr, const char *buffer, size_t le
     clear_message_buffer();
     returnValue = kstrtol(buffer, 0, &pid);
     if(returnValue == 0){
-        printk(KERN_INFO "[device_write] received %zu characters. Parsed as %lu\n", length, pid, returnValue);
+        printk(KERN_INFO "[device_write] received %zu characters. Parsed as %lu\n", length, pid);
         sprintf(messageBuffer, "Content of CR3 register: %lu", pid_to_cr3(pid));
         size_of_message = strlen(messageBuffer);
     }
