@@ -8,16 +8,22 @@ all:
 	$(CC) CRThreeReader.c -o CRThreeReader
 
 install:
-	sudo insmod CRThree.ko
+	sudo insmod CRThreeModule.ko
 
 remove:
-	sudo rmmod CRThree.ko
+	sudo rmmod CRThreeModule.ko
 
 test:
 	sudo dmesg -C
 	$(MAKE) install
 	$(MAKE) remove
-	dmesg
+	sudo dmesg
+
+test_gdt:
+	sudo dmesg -C
+	sudo insmod GDTReaderModule.ko
+	sudo rmmod GDTReaderModule.ko
+	sudo dmesg
 
 clean:
 	make -C /lib/modules/$(shell uname -r)/build/ M=$(PWD) clean
