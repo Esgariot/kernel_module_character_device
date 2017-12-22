@@ -1,19 +1,17 @@
-obj-m += bubu.o
+obj-m += CRThreeModule.o
+obj-m += GDTReaderModule.o
 
 .PHONY: clean
 
 all:
 	make -C /lib/modules/$(shell uname -r)/build/ M=$(PWD) modules
-	$(CC) bubu_reader.c -o bubu_reader
-
-debug:
-	$(CC) bubu_debug.c -o bubu_debug
+	$(CC) CRThreeReader.c -o CRThreeReader
 
 install:
-	sudo insmod bubu.ko
+	sudo insmod CRThree.ko
 
 remove:
-	sudo rmmod bubu.ko
+	sudo rmmod CRThree.ko
 
 test:
 	sudo dmesg -C
@@ -23,4 +21,4 @@ test:
 
 clean:
 	make -C /lib/modules/$(shell uname -r)/build/ M=$(PWD) clean
-	rm bubu_reader
+	rm CRThreeReader
