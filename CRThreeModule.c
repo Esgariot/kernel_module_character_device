@@ -23,19 +23,19 @@ MODULE_VERSION("0.1");
 
 
 // User defines
-#define DEVICE_NAME "bubu_char"
-#define CLASS_NAME "bubu_class"
+#define DEVICE_NAME "CRThree_char"
+#define CLASS_NAME "CRThree_class"
 #define MESSAGE_BUFFER_LENGTH 256
 
-static struct class* bubuClass = NULL;
-static struct device* bubuDevice = NULL;
+static struct class* CRThreeClass = NULL;
+static struct device* CRThreeDevice = NULL;
 static int deviceMajorNumber;
 static short size_of_message;
 static char messageBuffer[MESSAGE_BUFFER_LENGTH];
 
 
 // Mutex
-static DEFINE_MUTEX(bubu_mutex);
+static DEFINE_MUTEX(CRThree_mutex);
 
 // Prototypes for contracts
 static int device_open(struct inode *, struct file *);
@@ -53,10 +53,10 @@ static struct file_operations file_ops = {
     .release = device_release
 };
 
-static int __init bubu_init(void)
+static int __init CRThree_init(void)
 {   
-    mutex_init(&bubu_mutex);
-    printk(KERN_INFO "[init] bubu_init\n");
+    mutex_init(&CRThree_mutex);
+    printk(KERN_INFO "[init] CRThree_init\n");
 
     deviceMajorNumber= register_chrdev(0, DEVICE_NAME, &file_ops);
 
@@ -68,23 +68,23 @@ static int __init bubu_init(void)
         printk(KERN_INFO "[init] Registered device with major number %d\n",deviceMajorNumber);
     }
 
-    bubuClass = class_create(THIS_MODULE, CLASS_NAME);
+    CRThreeClass = class_create(THIS_MODULE, CLASS_NAME);
 
-    if (IS_ERR(bubuClass)) {
+    if (IS_ERR(CRThreeClass)) {
         unregister_chrdev(deviceMajorNumber,DEVICE_NAME);
         printk(KERN_ALERT "[init] Failed to register device class\n");
-        return PTR_ERR(bubuClass);
+        return PTR_ERR(CRThreeClass);
     }
     else {
         printk(KERN_INFO "[init] Correctly registered device class\n");
     }
 
-    bubuDevice = device_create(bubuClass, NULL, MKDEV(deviceMajorNumber,0), NULL, DEVICE_NAME);
-    if(IS_ERR(bubuDevice)) {
-        class_destroy(bubuClass);
+    CRThreeDevice = device_create(CRThreeClass, NULL, MKDEV(deviceMajorNumber,0), NULL, DEVICE_NAME);
+    if(IS_ERR(CRThreeDevice)) {
+        class_destroy(CRThreeClass);
         unregister_chrdev(deviceMajorNumber,DEVICE_NAME);
         printk(KERN_ALERT "[init] Failed to create device\n");
-        return PTR_ERR(bubuDevice);
+        return PTR_ERR(CRThreeDevice);
     }
     else {
         printk(KERN_INFO "[init] Device created\n");   
@@ -131,23 +131,23 @@ static int __init bubu_init(void)
 // } __attribute__((packed));
 
 
-static void __exit bubu_exit(void)
+static void __exit CRThree_exit(void)
 {
-    printk(KERN_INFO "[exit] bubu_exit\n");
+    printk(KERN_INFO "[exit] CRThree_exit\n");
     printk(KERN_INFO "[exit] destroying device\n");
-    device_destroy(bubuClass, MKDEV(deviceMajorNumber, 0));
+    device_destroy(CRThreeClass, MKDEV(deviceMajorNumber, 0));
     printk(KERN_INFO "[exit] unregistering class\n");
-    class_unregister(bubuClass);
+    class_unregister(CRThreeClass);
     printk(KERN_INFO "[exit] destroying class\n");
-    class_destroy(bubuClass);
+    class_destroy(CRThreeClass);
     printk(KERN_INFO "[exit] unregistering character device\n");
     unregister_chrdev(deviceMajorNumber, DEVICE_NAME);
     printk(KERN_INFO "[exit] unregistered class and device\n");
-    mutex_destroy(&bubu_mutex);
+    mutex_destroy(&CRThree_mutex);
 }
 
 static int device_open(struct inode *inode_ptr, struct file *file_ptr){
-    if(!mutex_trylock(&bubu_mutex)){
+    if(!mutex_trylock(&CRThree_mutex)){
         printk(KERN_ALERT "[device_open] "DEVICE_NAME" is busy");
         return -EBUSY;
     }
@@ -155,7 +155,7 @@ static int device_open(struct inode *inode_ptr, struct file *file_ptr){
 }
 
 static int device_release(struct inode *inode_ptr, struct file *file_ptr){
-    mutex_unlock(&bubu_mutex);
+    mutex_unlock(&CRThree_mutex);
     return 0;
 }
 
@@ -234,5 +234,5 @@ static unsigned long pid_to_cr3(int pid)
     return cr3_phys;
 }
 
-module_init(bubu_init);
-module_exit(bubu_exit);
+module_init(CRThree_init);
+module_exit(CRThree_exit);
