@@ -90,46 +90,7 @@ static int __init CRThree_init(void)
         printk(KERN_INFO "[init] Device created\n");   
     }
     return 0;
-    // struct desc_ptr gtd_ptr; // gdt base addr and size
-    // struct desc_struct *gdt; // gdt entry object
-    // int i;
-
-    // store_gdt(&gtd_ptr); // get gdt base and size
-
-    // printk("===========\nGDT size %d\n=============", gtd_ptr.size);
-    // printk("===========\nGDT address %x\n==========", gtd_ptr.address);
-
-    // gdt = (struct desc_struct *)gtd_ptr.address;
-
-    // for (i = 0; i < gtd_ptr.size; i++) {
-    //     printk("-----------------------------------------\n");
-    //     printk("%i\n",gdt_entry->limit0);
-    //     printk("%i\n",gdt_entry->base0);
-    //     printk("%i\n",gdt_entry->base1);
-    //     printk("%i\n",gdt_entry->type);
-    //     printk("%i\n",gdt_entry->s);
-    //     printk("%i\n",gdt_entry->dpl);
-    //     printk("%i\n",gdt_entry->p);
-    //     printk("%i\n",gdt_entry->limit1);
-    //     printk("%i\n",gdt_entry->avl);
-    //     printk("%i\n",gdt_entry->l);
-    //     printk("%i\n",gdt_entry->d);
-    //     printk("%i\n",gdt_entry->g);
-    //     printk("%i\n",gdt_entry->base2);
-    //     printk("-----------------------------------------\n");
-    //     gdt++;
-    // }
-    return 0;
 }
-
-/* 8 byte segment descriptor */
-// struct desc_struct {
-// 	u16	limit0;
-// 	u16	base0;
-// 	u16	base1: 8, type: 4, s: 1, dpl: 2, p: 1;
-// 	u16	limit1: 4, avl: 1, l: 1, d: 1, g: 1, base2: 8;
-// } __attribute__((packed));
-
 
 static void __exit CRThree_exit(void)
 {
@@ -189,22 +150,6 @@ static ssize_t device_write(struct file *file_ptr, const char *buffer, size_t le
     return length;
 }
 
-
-/** @brief This function is called whenever the device is being written to from user space i.e.
- *  data is sent to the device from the user. The data is copied to the message[] array in this
- *  LKM using the sprintf() function along with the length of the string.
- *  @param filep A pointer to a file object
- *  @param buffer The buffer to that contains the string to write to the device
- *  @param len The length of the array of data that is being passed in the const char buffer
- *  @param offset The offset if required
- */
-// static ssize_t device_write(struct file *filep, const char *buffer, size_t len, loff_t *offset){
-//    sprintf(messageBuffer, "%s(%zu letters)", buffer, len);   // appending received string with its length
-//    size_of_message = strlen(messageBuffer);                 // store the length of the stored message
-//    printk(KERN_INFO "EBBChar: Received %zu characters from the user\n", len);
-//    return len;
-// }
-
 static unsigned long pid_to_cr3(int pid)
 {
     struct task_struct *task;
@@ -215,12 +160,10 @@ static unsigned long pid_to_cr3(int pid)
     task = pid_task(find_vpid(pid), PIDTYPE_PID);
 
     if (task == NULL)
-        return 0; // pid has no task_struct
+        return 0;
 
     mm = task->mm;
 
-    // mm can be NULL in some rare cases (e.g. kthreads)
-    // when this happens, we should check active_mm
     if (mm == NULL) {
         mm = task->active_mm;
     }
