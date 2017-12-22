@@ -11,7 +11,7 @@ int main (int argc, char *argv[]) {
 	int readValue;
 	int writeValue;
 	char readBuffer[256];
-	
+	memset(readBuffer,0,sizeof(readBuffer));
 	if(argc==0)
 		return 1;
 	fileDevice = open("/dev/bubu_char", O_RDWR);
