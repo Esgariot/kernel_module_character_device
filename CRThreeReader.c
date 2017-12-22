@@ -7,7 +7,6 @@
 int main (int argc, char *argv[]) {
 
 	int fileDevice;
-	int processToLookup;
 	int readValue;
 	int writeValue;
 	char readBuffer[256];

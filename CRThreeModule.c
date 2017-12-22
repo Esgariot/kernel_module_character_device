@@ -13,11 +13,11 @@
 
 // Info
 #define DRIVER_AUTHOR "Robert Marciniak <robmarci@student.pg.edu.pl>"
-#define DRIVER_DESC   "Character driver that displays something"
+#define DRIVER_DESC   "Character driver that stores CR3 physical address of provided PID"
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Robert Marciniak");
-MODULE_DESCRIPTION("Character driver that displays something");
+MODULE_DESCRIPTION(DRIVER_DESC);
 MODULE_VERSION("0.1");
 
 

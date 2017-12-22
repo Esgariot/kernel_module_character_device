@@ -5,7 +5,7 @@
 #include <asm/desc.h>
 
 #define DRIVER_AUTHOR "Robert Marciniak <robmarci@student.pg.edu.pl>"
-#define DRIVER_DESC   "A module to display contents of GDT and other tables"
+#define DRIVER_DESC   "A module to display contents of GDT"
 MODULE_LICENSE("GPL");
 
 #define store_gdt(ptr) asm volatile("sgdt %0":"=m" (*ptr));
