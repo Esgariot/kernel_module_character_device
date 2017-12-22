@@ -57,8 +57,6 @@ static int __init bubu_init(void)
 {   
     mutex_init(&bubu_mutex);
     printk(KERN_INFO "[init] bubu_init\n");
-    clear_message_buffer();    
-
 
     deviceMajorNumber= register_chrdev(0, DEVICE_NAME, &file_ops);
 
