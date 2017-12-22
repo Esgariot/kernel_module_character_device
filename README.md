@@ -32,3 +32,11 @@
 - make test - wyświetla dmesg po install i remove
 - make test_gdt - wyświetla dmesg po załadowaniu i usunięciu GDTReaderModule
 - make clean - czyści folder roboczy
+
+#### 5. Typowy scenariusz użycia
+Będąc w maszynie wirtualnej jakiejś dystrybucji linuksa (najlepiej kernel >= 4)
+1. make
+2. make test_gdt | less
+3. make test
+4. make install
+5. sudo ./CRThreeReader <PID>
